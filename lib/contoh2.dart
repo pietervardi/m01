@@ -18,6 +18,10 @@ class _Contoh2State extends State<Contoh2> {
   double circular = 1;
 
   void play() {
+    if (isPlaying) {
+      _sub.resume();
+    }
+
     if (!isPlaying) {
       final Stream myStream =
           Stream.periodic(const Duration(seconds: 1), (int count) {
@@ -31,6 +35,7 @@ class _Contoh2State extends State<Contoh2> {
             _sub.cancel();
             percent = 0;
             circular = 0;
+            isPlaying = false;
           } else {
             percent = percent - getSteam;
             circular = percent / 100;
@@ -43,8 +48,7 @@ class _Contoh2State extends State<Contoh2> {
 
   void stop() {
     if (isPlaying) {
-      _sub.cancel();
-      isPlaying = false;
+      _sub.pause();
     }
   }
 
@@ -53,6 +57,7 @@ class _Contoh2State extends State<Contoh2> {
     setState(() {
       percent = 100;
       circular = 1;
+      isPlaying = false;
     });
   }
 
@@ -64,6 +69,9 @@ class _Contoh2State extends State<Contoh2> {
         title: const Text(
           'Stream',
           style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
         ),
       ),
       body: Center(
@@ -80,7 +88,15 @@ class _Contoh2State extends State<Contoh2> {
                     radius: avaHeight / 5,
                     lineWidth: 10,
                     percent: circular,
-                    center: Text('$percent %'),
+                    center: Text(
+                      percent == 100
+                          ? 'FULL'
+                          : percent == 0
+                              ? 'EMPTY'
+                              : '$percent %',
+                      style: const TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 )
               ],
@@ -92,7 +108,16 @@ class _Contoh2State extends State<Contoh2> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
+            onPressed: reset,
+            tooltip: 'RESET',
+            child: const Icon(Icons.restore),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          FloatingActionButton(
             onPressed: play,
+            tooltip: 'PLAY',
             child: const Icon(Icons.play_arrow_outlined),
           ),
           const SizedBox(
@@ -100,15 +125,9 @@ class _Contoh2State extends State<Contoh2> {
           ),
           FloatingActionButton(
             onPressed: stop,
+            tooltip: 'STOP',
             child: const Icon(Icons.stop_outlined),
           ),
-          const SizedBox(
-            width: 15,
-          ),
-          FloatingActionButton(
-            onPressed: reset,
-            child: const Icon(Icons.restore),
-          )
         ],
       ),
     );
